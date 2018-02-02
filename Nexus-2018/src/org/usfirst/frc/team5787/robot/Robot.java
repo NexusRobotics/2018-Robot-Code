@@ -7,11 +7,20 @@
 
 package org.usfirst.frc.team5787.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -22,7 +31,7 @@ import edu.wpi.first.wpilibj.XboxController;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
-public class Robot extends IterativeRobot {
+public class Robot extends IterativeRobot implements PIDOutput {
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
 	private String m_autoSelected;
@@ -32,6 +41,14 @@ public class Robot extends IterativeRobot {
 	private XboxController gamepad;
 	private boolean arcademode = false;
 	private double speed = 0.3D;
+	private RobotController autoController;
+	PIDController turnController;
+	AHRS ahrs;
+	static final double kP = 0.03;
+    static final double kI = 0.00;
+    static final double kD = 0.00;
+    static final double kF = 0.00;
+    static final double kToleranceDegrees = 2.0f;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -64,6 +81,14 @@ public class Robot extends IterativeRobot {
 		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, 2);
 		
 		drive = new DifferentialDrive(leftMaster,rightMaster);
+		
+		try {
+            ahrs = new AHRS(SPI.Port.kMXP); 
+        } catch (RuntimeException ex ) {
+            DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+        }
+		
+		autoController = new RobotController(drive, new ArrayList<RobotController.Task>(), ahrs);
 	}
 
 	/**
@@ -96,6 +121,7 @@ public class Robot extends IterativeRobot {
 				break;
 			case kDefaultAuto:
 			default:
+				autoController.update();
 				// Put default auto code here
 				break;
 		}
@@ -131,5 +157,11 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+	}
+
+	@Override
+	public void pidWrite(double output) {
+		// TODO Auto-generated method stub
+		
 	}
 }
