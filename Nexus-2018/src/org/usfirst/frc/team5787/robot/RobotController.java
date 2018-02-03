@@ -28,24 +28,30 @@ public class RobotController {
 			
 		}
 		Task task = taskQueue.get(0);
-		if (task.type == TaskType.MOVE) {
+		switch (task.type) {
+		case MOVE:
 			drive.tankDrive(0.3, 0.3);
 			taskProgress -= Math.abs(prevValue - Math.sqrt(Math.pow(ahrs.getDisplacementX(), 2) + Math.pow(ahrs.getDisplacementZ(), 2)));
 			prevValue = (float)Math.sqrt(Math.pow(ahrs.getDisplacementX(), 2) + Math.pow(ahrs.getDisplacementZ(), 2));
-		}
-		else if (task.type == TaskType.ROTATE_L) {
+			break;
+		case MOVE_TO:
+			drive.tankDrive(0.3, 0.3);
+			taskProgress = getSensorProximity() - task.amount;
+			break;
+		case ROTATE_L:
 			drive.tankDrive(-0.3, 0.3);
 			taskProgress -= Math.abs(prevValue - ahrs.getYaw());
 			prevValue = ahrs.getYaw();
-		}
-		else if (task.type == TaskType.ROTATE_R) {
+			break;
+		case ROTATE_R:
 			drive.tankDrive(0.3, -0.3);
 			taskProgress -= Math.abs(prevValue - ahrs.getYaw());
 			prevValue = ahrs.getYaw();
-		}
-		else if (task.type == TaskType.MOVE_TO) {
-			drive.tankDrive(0.3, 0.3);
-			taskProgress = getSensorProximity() - task.amount;
+			break;
+		case PICKUP:
+			break;
+		case PLACE:
+			break;
 		}
 	}
 	public int getSensorProximity() {

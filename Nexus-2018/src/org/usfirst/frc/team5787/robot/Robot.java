@@ -133,10 +133,8 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	@Override
 	public void teleopPeriodic() {
 		if (gamepad.getYButtonPressed()) {
-			if (arcademode)
-				arcademode = false;
-			else if (!arcademode)
-				arcademode = true;
+			if (arcademode) arcademode = false;
+			else if (!arcademode) arcademode = true;
 		}
 		//turbo button
 		if (gamepad.getBumperPressed(GenericHID.Hand.kRight)) {
