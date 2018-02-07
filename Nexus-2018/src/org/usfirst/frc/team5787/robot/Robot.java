@@ -7,6 +7,7 @@
 
 package org.usfirst.frc.team5787.robot;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -40,6 +41,7 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	private DifferentialDrive drive;
 	private XboxController gamepad;
 	private boolean arcademode = false;
+	private AnalogInput ultrasonic;
 	private double speed = 0.3D;
 	private RobotController autoController;
 	PIDController turnController;
@@ -88,7 +90,9 @@ public class Robot extends IterativeRobot implements PIDOutput {
             DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
         }
 		
-		autoController = new RobotController(drive, new ArrayList<RobotController.Task>(), ahrs);
+		ultrasonic = new AnalogInput(4);
+		
+		autoController = new RobotController(drive, new ArrayList<RobotController.Task>(), ahrs, ultrasonic);
 	}
 
 	/**

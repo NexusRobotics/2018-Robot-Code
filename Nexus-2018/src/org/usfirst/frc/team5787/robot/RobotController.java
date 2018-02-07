@@ -4,18 +4,21 @@ import java.util.ArrayList;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class RobotController {
 	public enum TaskType{
 		MOVE, MOVE_TO, ROTATE_L, ROTATE_R, PICKUP, PLACE
 	};
-	public RobotController(DifferentialDrive drive, ArrayList<Task> taskQueue, AHRS ahrs) {
+	public RobotController(DifferentialDrive drive, ArrayList<Task> taskQueue, AHRS ahrs, AnalogInput ultrasonic) {
 		this.drive = drive;
+		this.ultrasonic = ultrasonic;
 		this.taskQueue = taskQueue;
 		this.ahrs = ahrs;
 	}
 	public DifferentialDrive drive;
+	public AnalogInput ultrasonic;
 	public float taskProgress = 0;
 	public float prevValue;
 	public AHRS ahrs;
@@ -54,8 +57,10 @@ public class RobotController {
 			break;
 		}
 	}
+	public final double SUPPLIED_VOLTAGE = 12.0;
+	public final double SCALE_FACTOR = (SUPPLIED_VOLTAGE / 1024) * 5;
 	public int getSensorProximity() {
-		return 0;
+		return (int)(ultrasonic.getVoltage() / SCALE_FACTOR);
 	}
 	public class Task{
 		public TaskType type;
