@@ -7,19 +7,11 @@
 
 package org.usfirst.frc.team5787.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.XboxController;
@@ -31,34 +23,21 @@ import edu.wpi.first.wpilibj.XboxController;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
-public class Robot extends IterativeRobot implements PIDOutput {
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
-	private String m_autoSelected;
-	private SendableChooser<String> m_chooser = new SendableChooser<>();
+public class Robot extends IterativeRobot{
 	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront;
 	private DifferentialDrive drive;
 	private XboxController gamepad;
-	private boolean arcademode = false;
+	private enum Drivemode{
+		ARCADE, TANK
+	}
+	private Drivemode drivemode = Drivemode.TANK;
 	private double speed = 0.3D;
-	private RobotController autoController;
-	PIDController turnController;
-	AHRS ahrs;
-	static final double kP = 0.03;
-    static final double kI = 0.00;
-    static final double kD = 0.00;
-    static final double kF = 0.00;
-    static final double kToleranceDegrees = 2.0f;
-	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto choices", m_chooser);
 		gamepad = new XboxController(0);
 		
 		leftMaster  = new WPI_VictorSPX(0);
@@ -82,13 +61,6 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		
 		drive = new DifferentialDrive(leftMaster,rightMaster);
 		
-		try {
-            ahrs = new AHRS(SPI.Port.kMXP); 
-        } catch (RuntimeException ex ) {
-            DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-        }
-		
-		autoController = new RobotController(drive, new ArrayList<RobotController.Task>(), ahrs);
 	}
 
 	/**
@@ -104,10 +76,10 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autoSelected = m_chooser.getSelected();
+		//m_autoSelected = m_chooser.getSelected();
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
-		System.out.println("Auto selected: " + m_autoSelected);
+		//System.out.println("Auto selected: " + m_autoSelected);
 	}
 
 	/**
@@ -115,16 +87,6 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
-				break;
-			case kDefaultAuto:
-			default:
-				autoController.update();
-				// Put default auto code here
-				break;
-		}
 	}
 
 	/**
@@ -133,8 +95,8 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	@Override
 	public void teleopPeriodic() {
 		if (gamepad.getYButtonPressed()) {
-			if (arcademode) arcademode = false;
-			else if (!arcademode) arcademode = true;
+			if (drivemode == Drivemode.ARCADE) drivemode = Drivemode.TANK;
+			else if (drivemode == Drivemode.TANK) drivemode = Drivemode.ARCADE;
 		}
 		//turbo button
 		if (gamepad.getBumperPressed(GenericHID.Hand.kRight)) {
@@ -144,9 +106,9 @@ public class Robot extends IterativeRobot implements PIDOutput {
 			speed = 0.3D;
 		}
 		
-		if (arcademode)
+		if (drivemode == Drivemode.ARCADE)
 			drive.arcadeDrive(gamepad.getY(GenericHID.Hand.kLeft)*speed*-1D, gamepad.getX(GenericHID.Hand.kLeft)*speed,false);
-		else
+		else if (drivemode == Drivemode.TANK)
 			drive.tankDrive(gamepad.getY(GenericHID.Hand.kLeft)*speed*-1D, gamepad.getY(GenericHID.Hand.kRight)*speed*-1D,false);
 	}
 
@@ -157,9 +119,5 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	public void testPeriodic() {
 	}
 
-	@Override
-	public void pidWrite(double output) {
-		// TODO Auto-generated method stub
-		
-	}
+
 }
