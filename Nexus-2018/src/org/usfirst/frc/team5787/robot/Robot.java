@@ -35,10 +35,12 @@ import edu.wpi.first.wpilibj.XboxController;
 public class Robot extends IterativeRobot implements PIDOutput {
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
+	private DriverStation station;
 	private String m_autoSelected;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront;
-	private DifferentialDrive drive;
+	private WPI_VictorSPX leftLoader, rightLoader;
+	private DifferentialDrive drive, loaderDrive;
 	private XboxController gamepad;
 	private boolean arcademode = false;
 	private AnalogInput ultrasonic;
@@ -63,10 +65,13 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		gamepad = new XboxController(0);
 		
-		leftMaster  = new WPI_VictorSPX(0);
-		leftFront  = new WPI_VictorSPX(1);
-		rightMaster  = new WPI_VictorSPX(2);
-		rightFront = new WPI_VictorSPX(3);
+		leftMaster  = new WPI_VictorSPX(Constants.DRIVE_MASTER_L);
+		leftFront  = new WPI_VictorSPX(Constants.DRIVE_FRONT_L);
+		rightMaster  = new WPI_VictorSPX(Constants.DRIVE_MASTER_R);
+		rightFront = new WPI_VictorSPX(Constants.DRIVE_FRONT_R);
+		
+		leftLoader = new WPI_VictorSPX(Constants.LOADER_PORT_L);
+		rightLoader = new WPI_VictorSPX(Constants.LOADER_PORT_R);
 		
 		
 		leftMaster.setInverted(true);
@@ -74,15 +79,24 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		rightMaster.setInverted(true);
 		rightFront.setInverted(true);
 		
+		leftLoader.setInverted(false);
+		rightLoader.setInverted(false);
+		
+		
+		
 		leftMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		leftFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		rightMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		rightFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		
-		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, 0);
-		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, 2);
+		leftLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+		rightLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+		
+		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Constants.DRIVE_MASTER_L);
+		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Constants.DRIVE_MASTER_R);
 		
 		drive = new DifferentialDrive(leftMaster,rightMaster);
+		loaderDrive = new DifferentialDrive(leftLoader, rightLoader);
 		
 		try {
             ahrs = new AHRS(SPI.Port.kMXP); 
@@ -91,6 +105,7 @@ public class Robot extends IterativeRobot implements PIDOutput {
         }
 		
 		ultrasonic = new AnalogInput(4);
+		station = DriverStation.getInstance();
 		
 		autoController = new RobotController(drive, new ArrayList<RobotController.Task>(), ahrs, ultrasonic);
 	}
@@ -146,6 +161,13 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		}
 		if (gamepad.getBumperReleased(GenericHID.Hand.kRight)) {
 			speed = 0.3D;
+		}
+		
+		if (gamepad.getXButton()) {
+			drive.arcadeDrive(0.3, 0);
+		}
+		if (gamepad.getYButton()) {
+			drive.arcadeDrive(-0.3, 0);
 		}
 		
 		if (arcademode)
