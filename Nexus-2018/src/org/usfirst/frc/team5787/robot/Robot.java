@@ -186,10 +186,10 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		}
 		
 		if(gamepad.getTriggerAxis(GenericHID.Hand.kLeft)>0.55D) {
-		climber.set(gamepad.getTriggerAxis(GenericHID.Hand.kLeft));
+		climber.set((gamepad.getTriggerAxis(GenericHID.Hand.kLeft)-0.5D)*2D);
 		}
 		else if(gamepad.getTriggerAxis(GenericHID.Hand.kRight)>0.55D) {
-			climber.set(gamepad.getTriggerAxis(GenericHID.Hand.kRight)*-1D);
+			climber.set((gamepad.getTriggerAxis(GenericHID.Hand.kRight)-0.5D)*-2D);
 		}
 		
 		if (arcademode)
