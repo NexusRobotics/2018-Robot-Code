@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj.XboxController;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
-public class Robot extends IterativeRobot implements PIDOutput {
+public class Robot extends IterativeRobot{
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
 	private DriverStation station;
@@ -43,19 +43,17 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront, leftLoader, rightLoader, climber;
 	private Servo claw;
-	private DifferentialDrive drive, loaderDrive;
+	private DifferentialDrive drive;
 	private XboxController gamepad;
 	private boolean arcademode = false;
 	private AnalogInput ultrasonic;
 	private double speed = 0.3D;
 	private RobotController autoController;
-	PIDController turnController;
-	AHRS ahrs;
-	static final double kP = 0.03;
-    static final double kI = 0.00;
-    static final double kD = 0.00;
-    static final double kF = 0.00;
-    static final double kToleranceDegrees = 2.0f;
+	private AHRS ahrs;
+	private enum Upmode{
+	me, block
+	}
+	private Upmode currentupmode= Upmode.block;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -101,15 +99,11 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		
 		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_L);
 		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_R);
+		rightLoader.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.ARM_L);
 		
 		drive = new DifferentialDrive(leftMaster,rightMaster);
-		loaderDrive = new DifferentialDrive(leftLoader, rightLoader);
 		
-		try {
-            ahrs = new AHRS(SPI.Port.kMXP); 
-        } catch (RuntimeException ex ) {
-            DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-        }
+		
 		
 		ultrasonic = new AnalogInput(4);
 		station = DriverStation.getInstance();
@@ -159,11 +153,18 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	@Override
 	public void teleopPeriodic() {
 		if (gamepad.getYButtonPressed()) {
-			if (arcademode) arcademode = false;
-			else if (!arcademode) arcademode = true;
+			arcademode = !arcademode;
 		}
+		
+		if(gamepad.getXButtonPressed()) {
+			if (currentupmode == Upmode.block ) {
+				currentupmode = Upmode.me;
+			} else currentupmode = Upmode.block;
+				
+		}
+		
 		//turbo button
-		if (gamepad.getXButton()) {
+		if (gamepad.getBumper(GenericHID.Hand.kRight)) {
 			speed = 1D;
 		}
 		else {
@@ -175,14 +176,14 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		}
 		
 		if (gamepad.getBButton()) {
-			loaderDrive.tankDrive(-0.5, -0.5);
+			leftLoader.set(-0.5D);
 		}
 		
 		else if (gamepad.getAButton()) {
-			loaderDrive.tankDrive(0.5, 0.5);
+			leftLoader.set(0.5D);
 		}
 		else {
-			loaderDrive.arcadeDrive(0, 0);
+			leftLoader.set(0);
 		}
 		
 		if(gamepad.getTriggerAxis(GenericHID.Hand.kLeft)>0.55D) {
@@ -205,9 +206,4 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	public void testPeriodic() {
 	}
 
-	@Override
-	public void pidWrite(double output) {
-		// TODO Auto-generated method stub
-		
-	}
 }
