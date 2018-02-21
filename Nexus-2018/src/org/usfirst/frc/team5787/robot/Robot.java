@@ -92,13 +92,15 @@ public class Robot extends IterativeRobot{
 		
 		
 		
-		leftMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		leftFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		rightMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		rightFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+		leftMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+		leftFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+		rightMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+		rightFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
 		
 		leftLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		rightLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+		lifter.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+		climber.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		
 		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_L);
 		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_R);
