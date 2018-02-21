@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -37,9 +38,11 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	private static final String kCustomAuto = "My Auto";
 	private DriverStation station;
 	private String m_autoSelected;
+	private boolean clawServoToggle = false;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront;
 	private WPI_VictorSPX leftLoader, rightLoader;
+	private Servo claw;
 	private DifferentialDrive drive, loaderDrive;
 	private XboxController gamepad;
 	private boolean arcademode = false;
@@ -64,6 +67,8 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		m_chooser.addObject("My Auto", kCustomAuto);
 		SmartDashboard.putData("Auto choices", m_chooser);
 		gamepad = new XboxController(0);
+		
+		claw = new Servo(Constants.CLAW_SERVO);
 		
 		leftMaster  = new WPI_VictorSPX(Constants.DRIVE_MASTER_L);
 		leftFront  = new WPI_VictorSPX(Constants.DRIVE_FRONT_L);
@@ -156,19 +161,22 @@ public class Robot extends IterativeRobot implements PIDOutput {
 			else if (!arcademode) arcademode = true;
 		}
 		//turbo button
-		if (gamepad.getBumperPressed(GenericHID.Hand.kRight)) {
+		if (gamepad.getXButton()) {
 			speed = 1D;
 		}
-		if (gamepad.getBumperReleased(GenericHID.Hand.kRight)) {
+		else {
 			speed = 0.3D;
 		}
-		
+		if (gamepad.getBumperPressed(GenericHID.Hand.kLeft)) {
+			claw.setAngle(clawServoToggle ? 0 : 90);
+			clawServoToggle = !clawServoToggle;
+		}
 		if (gamepad.getBButton()) {
-			loaderDrive.tankDrive(-0.3, -0.3);
+			loaderDrive.tankDrive(-0.5, -0.5);
 		}
 		
 		else if (gamepad.getAButton()) {
-			loaderDrive.tankDrive(0.3, 0.3);
+			loaderDrive.tankDrive(0.5, 0.5);
 		}
 		else {
 			loaderDrive.arcadeDrive(0, 0);

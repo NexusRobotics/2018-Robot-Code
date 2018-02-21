@@ -8,4 +8,6 @@ public class Constants {
 	public static final int DRIVE_FRONT_L = 5;
 	public static final int DRIVE_MASTER_R = 6;
 	public static final int DRIVE_FRONT_R = 7;
+	
+	public static final int CLAW_SERVO = 0;
 }
