@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.usfirst.frc.team5787.robot.Robotmap;
 
 import java.util.ArrayList;
 
@@ -40,8 +41,7 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	private String m_autoSelected;
 	private boolean clawServoToggle = false;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
-	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront;
-	private WPI_VictorSPX leftLoader, rightLoader;
+	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront, leftLoader, rightLoader, climber;
 	private Servo claw;
 	private DifferentialDrive drive, loaderDrive;
 	private XboxController gamepad;
@@ -68,15 +68,17 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		SmartDashboard.putData("Auto choices", m_chooser);
 		gamepad = new XboxController(0);
 		
-		claw = new Servo(Constants.CLAW_SERVO);
+		claw = new Servo(Robotmap.ARM_SERVO);
 		
-		leftMaster  = new WPI_VictorSPX(Constants.DRIVE_MASTER_L);
-		leftFront  = new WPI_VictorSPX(Constants.DRIVE_FRONT_L);
-		rightMaster  = new WPI_VictorSPX(Constants.DRIVE_MASTER_R);
-		rightFront = new WPI_VictorSPX(Constants.DRIVE_FRONT_R);
+		leftMaster  = new WPI_VictorSPX(Robotmap.DRIVE_MASTER_L);
+		leftFront  = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_L);
+		rightMaster  = new WPI_VictorSPX(Robotmap.DRIVE_MASTER_R);
+		rightFront = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_R);
 		
-		leftLoader = new WPI_VictorSPX(Constants.LOADER_PORT_L);
-		rightLoader = new WPI_VictorSPX(Constants.LOADER_PORT_R);
+		leftLoader = new WPI_VictorSPX(Robotmap.ARM_L);
+		rightLoader = new WPI_VictorSPX(Robotmap.ARM_R);
+		
+		climber = new WPI_VictorSPX(Robotmap.CLIMBER);
 		
 		
 		leftMaster.setInverted(true);
@@ -97,8 +99,8 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		leftLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		rightLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		
-		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Constants.DRIVE_MASTER_L);
-		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Constants.DRIVE_MASTER_R);
+		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_L);
+		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_R);
 		
 		drive = new DifferentialDrive(leftMaster,rightMaster);
 		loaderDrive = new DifferentialDrive(leftLoader, rightLoader);
@@ -171,6 +173,7 @@ public class Robot extends IterativeRobot implements PIDOutput {
 			claw.setAngle(clawServoToggle ? 0 : 90);
 			clawServoToggle = !clawServoToggle;
 		}
+		
 		if (gamepad.getBButton()) {
 			loaderDrive.tankDrive(-0.5, -0.5);
 		}
@@ -180,6 +183,13 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		}
 		else {
 			loaderDrive.arcadeDrive(0, 0);
+		}
+		
+		if(gamepad.getTriggerAxis(GenericHID.Hand.kLeft)>0.55D) {
+		climber.set(gamepad.getTriggerAxis(GenericHID.Hand.kLeft));
+		}
+		else if(gamepad.getTriggerAxis(GenericHID.Hand.kRight)>0.55D) {
+			climber.set(gamepad.getTriggerAxis(GenericHID.Hand.kRight)*-1D);
 		}
 		
 		if (arcademode)
