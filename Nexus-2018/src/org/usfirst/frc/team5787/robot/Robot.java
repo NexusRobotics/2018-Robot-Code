@@ -22,6 +22,7 @@ import org.usfirst.frc.team5787.robot.Robotmap;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -42,6 +43,7 @@ public class Robot extends IterativeRobot{
 	private boolean clawServoToggle = false;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
 	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront, leftLoader, rightLoader, climber;
+	private WPI_TalonSRX lifter;
 	private Servo claw;
 	private DifferentialDrive drive;
 	private XboxController gamepad;
@@ -77,12 +79,13 @@ public class Robot extends IterativeRobot{
 		rightLoader = new WPI_VictorSPX(Robotmap.ARM_R);
 		
 		climber = new WPI_VictorSPX(Robotmap.CLIMBER);
+		lifter = new WPI_TalonSRX(Robotmap.LIFTER_SRX);
 		
 		
-		leftMaster.setInverted(true);
-		leftFront.setInverted(true);
-		rightMaster.setInverted(true);
-		rightFront.setInverted(true);
+		leftMaster.setInverted(false);
+		leftFront.setInverted(false);
+		rightMaster.setInverted(false);
+		rightFront.setInverted(false);
 		
 		leftLoader.setInverted(false);
 		rightLoader.setInverted(true);
@@ -159,7 +162,13 @@ public class Robot extends IterativeRobot{
 		if(gamepad.getXButtonPressed()) {
 			if (currentupmode == Upmode.block ) {
 				currentupmode = Upmode.me;
-			} else currentupmode = Upmode.block;
+				lifter.set(0);
+			} 
+			else {
+				currentupmode = Upmode.block;
+				climber.set(0);
+			}
+			
 				
 		}
 		
@@ -187,10 +196,16 @@ public class Robot extends IterativeRobot{
 		}
 		
 		if(gamepad.getTriggerAxis(GenericHID.Hand.kLeft)>0.55D) {
-		climber.set((gamepad.getTriggerAxis(GenericHID.Hand.kLeft)-0.5D)*2D);
+			if (currentupmode==Upmode.me)climber.set((gamepad.getTriggerAxis(GenericHID.Hand.kLeft)-0.5D)*2D);
+			if (currentupmode==Upmode.block)lifter.set((gamepad.getTriggerAxis(GenericHID.Hand.kLeft)-0.5D)*2D);
 		}
-		else if(gamepad.getTriggerAxis(GenericHID.Hand.kRight)>0.55D) {
-			climber.set((gamepad.getTriggerAxis(GenericHID.Hand.kRight)-0.5D)*-2D);
+		else if(gamepad.getTriggerAxis(GenericHID.Hand. kRight)>0.55D) {
+			if (currentupmode==Upmode.me)climber.set((gamepad.getTriggerAxis(GenericHID.Hand.kRight)-0.5D)*-2D);
+			if (currentupmode==Upmode.block)lifter.set((gamepad.getTriggerAxis(GenericHID.Hand.kRight)-0.5D)*-2D);
+		}
+		else {
+			lifter.set(0);
+			climber.set(0);
 		}
 		
 		if (arcademode)
