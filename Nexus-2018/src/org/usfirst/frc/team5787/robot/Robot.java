@@ -80,7 +80,7 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		rightFront.setInverted(true);
 		
 		leftLoader.setInverted(false);
-		rightLoader.setInverted(false);
+		rightLoader.setInverted(true);
 		
 		
 		
@@ -163,11 +163,15 @@ public class Robot extends IterativeRobot implements PIDOutput {
 			speed = 0.3D;
 		}
 		
-		if (gamepad.getXButton()) {
-			drive.arcadeDrive(0.3, 0);
+		if (gamepad.getBButton()) {
+			loaderDrive.tankDrive(-0.3, -0.3);
 		}
-		if (gamepad.getYButton()) {
-			drive.arcadeDrive(-0.3, 0);
+		
+		else if (gamepad.getAButton()) {
+			loaderDrive.tankDrive(0.3, 0.3);
+		}
+		else {
+			loaderDrive.arcadeDrive(0, 0);
 		}
 		
 		if (arcademode)
