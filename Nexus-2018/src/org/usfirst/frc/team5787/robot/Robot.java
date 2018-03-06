@@ -18,14 +18,17 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc.team5787.robot.Robotmap;
-
+import edu.wpi.first.wpilibj.SpeedController;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.wpilibj.VictorSP;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -36,14 +39,14 @@ import edu.wpi.first.wpilibj.XboxController;
  * project.
  */
 public class Robot extends IterativeRobot{
+	public static final boolean isPracticerobot = true;
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
 	private DriverStation station;
 	private String m_autoSelected;
 	private boolean clawServoToggle = false;
 	private SendableChooser<String> m_chooser = new SendableChooser<>();
-	private WPI_VictorSPX leftMaster, leftFront, rightMaster, rightFront, leftLoader, rightLoader, climber;
-	private WPI_TalonSRX lifter;
+	private SpeedController leftBack, leftFront, rightBack, rightFront, leftArm, rightArm, climber, lifter;
 	private Servo claw;
 	private DifferentialDrive drive;
 	private XboxController gamepad;
@@ -55,6 +58,9 @@ public class Robot extends IterativeRobot{
 	private enum Upmode{
 	me, block
 	}
+	
+	private SpeedControllerGroup leftGroup, rightGroup;
+	
 	private Upmode currentupmode= Upmode.block;
 	
 	/**
@@ -68,47 +74,49 @@ public class Robot extends IterativeRobot{
 		SmartDashboard.putData("Auto choices", m_chooser);
 		gamepad = new XboxController(0);
 		
-		claw = new Servo(Robotmap.ARM_SERVO);
-		
-		leftMaster  = new WPI_VictorSPX(Robotmap.DRIVE_MASTER_L);
-		leftFront  = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_L);
-		rightMaster  = new WPI_VictorSPX(Robotmap.DRIVE_MASTER_R);
-		rightFront = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_R);
-		
-		leftLoader = new WPI_VictorSPX(Robotmap.ARM_L);
-		rightLoader = new WPI_VictorSPX(Robotmap.ARM_R);
-		
-		climber = new WPI_VictorSPX(Robotmap.CLIMBER);
-		lifter = new WPI_TalonSRX(Robotmap.LIFTER_SRX);
-		
-		
-		leftMaster.setInverted(false);
+		leftBack.setInverted(false);
 		leftFront.setInverted(false);
-		rightMaster.setInverted(false);
+		rightBack.setInverted(false);
 		rightFront.setInverted(false);
 		
-		leftLoader.setInverted(false);
-		rightLoader.setInverted(true);
 		
+		if (isPracticerobot) {
+			leftBack   = new VictorSP(Robotmap.PWM_DRIVE_BACK_L);
+			leftFront  = new VictorSP(Robotmap.PWM_DRIVE_FRONT_L);
+			rightBack  = new VictorSP(Robotmap.PWM_DRIVE_BACK_R);
+			rightFront = new VictorSP(Robotmap.PWM_DRIVE_FRONT_R);
+			leftArm	   = new VictorSP(Robotmap.PWM_ARM_L);
+			rightArm   = new VictorSP(Robotmap.PWM_ARM_R);
+			climber    = new VictorSP(Robotmap.PWM_CLIMBER);
+			lifter     = new VictorSP(Robotmap.PWM_LIFTER);
+			
+		} else {
+			leftBack   = new WPI_VictorSPX(Robotmap.DRIVE_BACK_L);
+			leftFront  = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_L);
+			rightBack  = new WPI_VictorSPX(Robotmap.DRIVE_BACK_R);
+			rightFront = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_R);
+			leftArm = new WPI_VictorSPX(Robotmap.ARM_L);
+			rightArm = new WPI_VictorSPX(Robotmap.ARM_R);		
+			climber = new WPI_VictorSPX(Robotmap.CLIMBER);
+			lifter = new WPI_TalonSRX(Robotmap.LIFTER_SRX);
+			((BaseMotorController) leftBack).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+			((BaseMotorController) leftFront).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+			((BaseMotorController) rightBack).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+			((BaseMotorController) rightFront).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
+			((BaseMotorController) leftArm).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+			((BaseMotorController) rightArm).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+			((BaseMotorController) climber).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+			((BaseMotorController) lifter).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);			
+			((WPI_VictorSPX) rightArm).set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.ARM_L);
+		}
+
+		claw = new Servo(Robotmap.ARM_SERVO);		
+		leftArm.setInverted(false);
+		rightArm.setInverted(true);
 		
-		
-		leftMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
-		leftFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
-		rightMaster.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
-		rightFront.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
-		
-		leftLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		rightLoader.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		lifter.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		climber.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-		
-		leftFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_L);
-		rightFront.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.DRIVE_MASTER_R);
-		rightLoader.set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.ARM_L);
-		
-		drive = new DifferentialDrive(leftMaster,rightMaster);
-		
-		
+		leftGroup = new SpeedControllerGroup(leftBack, leftFront);
+		rightGroup = new SpeedControllerGroup(rightBack, rightFront);
+		drive = new DifferentialDrive(leftGroup,rightGroup);
 		
 		ultrasonic = new AnalogInput(4);
 		station = DriverStation.getInstance();
@@ -150,6 +158,7 @@ public class Robot extends IterativeRobot{
 				// Put default auto code here
 				break;
 		}
+		drive.tankDrive(1D, 0, false);
 	}
 
 	/**
@@ -187,14 +196,14 @@ public class Robot extends IterativeRobot{
 		}
 		
 		if (gamepad.getBButton()) {
-			leftLoader.set(-0.5D);
+			leftArm.set(-0.5D);
 		}
 		
 		else if (gamepad.getAButton()) {
-			leftLoader.set(0.5D);
+			leftArm.set(1);
 		}
 		else {
-			leftLoader.set(0);
+			leftArm.set(0);
 		}
 		
 		if(gamepad.getTriggerAxis(GenericHID.Hand.kLeft)>0.55D) {
