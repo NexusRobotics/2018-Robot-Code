@@ -15,15 +15,16 @@ public class Robotmap {
 	public static final int LIFTER_SRX = 0;
 	
 	//PWM Ports
-	public static final int ARM_SERVO = 0;
+	public static final int ARM_SERVO = 9;
 	public static final int PWM_DRIVE_FRONT_R = 1;
 	public static final int PWM_DRIVE_BACK_R = 2;
-	public static final int PWM_ARM_L = 3;
-	public static final int PWM_ARM_R = 4;
-	public static final int PWM_CLIMBER = 5;
+	public static final int PWM_ARM_L = 4;
+	public static final int PWM_ARM_R = 8;
+	public static final int PWM_CLIMBER = 0;
 	public static final int PWM_DRIVE_FRONT_L = 6;
 	public static final int PWM_DRIVE_BACK_L = 7;
-	public static final int PWM_LIFTER = 8;
+	public static final int PWM_LIFTER = 5;
+	public static final int PWM_EXTRA_VICTOR = 3;
 	
 	//DIGITAL IO Ports
 	public static final int IRsensor = 0;
