@@ -17,9 +17,12 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import org.usfirst.frc.team5787.robot.RobotController.TaskType;
 import org.usfirst.frc.team5787.robot.Robotmap;
 import edu.wpi.first.wpilibj.SpeedController;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
@@ -29,6 +32,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -38,7 +42,7 @@ import edu.wpi.first.wpilibj.XboxController;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
-public class Robot extends IterativeRobot{
+public class Robot extends TimedRobot{
 	public static final boolean isPracticerobot = true;
 	private static final String kDefaultAuto = "Default";
 	private static final String kCustomAuto = "My Auto";
@@ -120,8 +124,8 @@ public class Robot extends IterativeRobot{
 		
 		ultrasonic = new AnalogInput(4);
 		station = DriverStation.getInstance();
-		
-		autoController = new RobotController(drive, new ArrayList<RobotController.Task>(), ahrs, ultrasonic);
+		RobotController.Task[] tasks = new RobotController.Task[] {new RobotController.Task(TaskType.MOVE, 3), new RobotController.Task(TaskType.PICKUP, RobotController.PICKUP_STEPS)};
+		autoController = new RobotController(drive, leftArm, lifter, claw, (ArrayList<RobotController.Task>)Arrays.asList(tasks), ahrs, ultrasonic);
 	}
 
 	/**
@@ -148,6 +152,7 @@ public class Robot extends IterativeRobot{
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		
 		switch (m_autoSelected) {
 			case kCustomAuto:
 				// Put custom auto code here
