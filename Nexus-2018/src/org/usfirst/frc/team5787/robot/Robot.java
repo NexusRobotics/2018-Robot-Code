@@ -44,12 +44,13 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class Robot extends TimedRobot{
 	public static final boolean isPracticerobot = true;
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
+	private enum Automode{
+		defaultauto, drivestraight, testauto
+	}
 	private DriverStation station;
-	private String m_autoSelected;
 	private boolean clawServoToggle = false;
-	private SendableChooser<String> m_chooser = new SendableChooser<>();
+	private SendableChooser<Boolean> drive_chooser = new SendableChooser<>();
+	private SendableChooser<Automode> automode = new SendableChooser<>(); 
 	private SpeedController leftBack, leftFront, rightBack, rightFront, leftArm, rightArm, climber, lifter;
 	private Servo claw;
 	private DifferentialDrive drive;
@@ -73,15 +74,12 @@ public class Robot extends TimedRobot{
 	 */
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto choices", m_chooser);
+		drive_chooser.addDefault("Tank Drive", Boolean.FALSE);
+		drive_chooser.addObject("Arcade Drive", Boolean.TRUE);
+		SmartDashboard.putData("Drive Mode", drive_chooser);
 		gamepad = new XboxController(0);
 		
-		leftBack.setInverted(false);
-		leftFront.setInverted(false);
-		rightBack.setInverted(false);
-		rightFront.setInverted(false);
+		
 		
 		
 		if (isPracticerobot) {
@@ -113,6 +111,10 @@ public class Robot extends TimedRobot{
 			((BaseMotorController) lifter).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);			
 			((WPI_VictorSPX) rightArm).set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.ARM_L);
 		}
+		leftBack.setInverted(false);
+		leftFront.setInverted(false);
+		rightBack.setInverted(false);
+		rightFront.setInverted(false);
 
 		claw = new Servo(Robotmap.ARM_SERVO);		
 		leftArm.setInverted(false);
@@ -125,7 +127,7 @@ public class Robot extends TimedRobot{
 		ultrasonic = new AnalogInput(4);
 		station = DriverStation.getInstance();
 		RobotController.Task[] tasks = new RobotController.Task[] {new RobotController.Task(TaskType.MOVE, 3), new RobotController.Task(TaskType.PICKUP, RobotController.PICKUP_STEPS)};
-		autoController = new RobotController(drive, leftArm, lifter, claw, (ArrayList<RobotController.Task>)Arrays.asList(tasks), ahrs, ultrasonic);
+		autoController = new RobotController(drive, leftArm, lifter, claw, new ArrayList<RobotController.Task>(Arrays.asList(tasks)), ahrs, ultrasonic);
 	}
 
 	/**
@@ -141,10 +143,7 @@ public class Robot extends TimedRobot{
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autoSelected = m_chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + m_autoSelected);
+		
 	}
 
 	/**
@@ -153,17 +152,8 @@ public class Robot extends TimedRobot{
 	@Override
 	public void autonomousPeriodic() {
 		
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
-				break;
-			case kDefaultAuto:
-			default:
-				autoController.update();
-				// Put default auto code here
-				break;
-		}
-		drive.tankDrive(1D, 0, false);
+		autoController.update();
+		//drive.tankDrive(1D, 0, false);
 	}
 
 	/**
