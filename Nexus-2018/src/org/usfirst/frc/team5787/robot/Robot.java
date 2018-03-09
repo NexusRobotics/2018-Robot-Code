@@ -7,33 +7,21 @@
 
 package org.usfirst.frc.team5787.robot;
 
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import org.usfirst.frc.team5787.robot.RobotController.TaskType;
 import org.usfirst.frc.team5787.robot.Robotmap;
-import edu.wpi.first.wpilibj.SpeedController;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.VictorSP;
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
+
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -47,8 +35,10 @@ public class Robot extends TimedRobot{
 	private enum Automode{
 		defaultauto, drivestraight, testauto
 	}
+	private Preferences prefs;
+	private SerialPort rs232;
 	private DriverStation station;
-	private boolean clawServoToggle = false;
+	private boolean clawServoOpen = true;
 	private SendableChooser<Boolean> drive_chooser = new SendableChooser<>();
 	private SendableChooser<Automode> automode = new SendableChooser<>(); 
 	private SpeedController leftBack, leftFront, rightBack, rightFront, leftArm, rightArm, climber, lifter;
@@ -74,33 +64,34 @@ public class Robot extends TimedRobot{
 	 */
 	@Override
 	public void robotInit() {
+		prefs = Preferences.getInstance();
 		drive_chooser.addDefault("Tank Drive", Boolean.FALSE);
 		drive_chooser.addObject("Arcade Drive", Boolean.TRUE);
 		SmartDashboard.putData("Drive Mode", drive_chooser);
 		gamepad = new XboxController(0);
-		
+		rs232 = new SerialPort(19200, SerialPort.Port.kOnboard);
 		
 		
 		
 		if (isPracticerobot) {
-			leftBack   = new VictorSP(Robotmap.PWM_DRIVE_BACK_L);
-			leftFront  = new VictorSP(Robotmap.PWM_DRIVE_FRONT_L);
-			rightBack  = new VictorSP(Robotmap.PWM_DRIVE_BACK_R);
-			rightFront = new VictorSP(Robotmap.PWM_DRIVE_FRONT_R);
-			leftArm	   = new VictorSP(Robotmap.PWM_ARM_L);
-			rightArm   = new VictorSP(Robotmap.PWM_ARM_R);
-			climber    = new VictorSP(Robotmap.PWM_CLIMBER);
-			lifter     = new VictorSP(Robotmap.PWM_LIFTER);
+			leftBack   = new VictorSP(prefs.getInt("PWM_DRIVE_BACK_L", Robotmap.PWM_DRIVE_BACK_L));
+			leftFront  = new VictorSP(prefs.getInt("PWM_DRIVE_FRONT_L",Robotmap.PWM_DRIVE_FRONT_L));
+			rightBack  = new VictorSP(prefs.getInt("PWM_DRIVE_BACK_R", Robotmap.PWM_DRIVE_BACK_R));
+			rightFront = new VictorSP(prefs.getInt("PWM_DRIVE_FRONT_R", Robotmap.PWM_DRIVE_FRONT_R));
+			leftArm	   = new VictorSP(prefs.getInt("PWM_ARM_L", Robotmap.PWM_ARM_L));
+			rightArm   = new VictorSP(prefs.getInt("PWM_ARM_R", Robotmap.PWM_ARM_R));
+			climber    = new VictorSP(prefs.getInt("PWM_CLIMBER", Robotmap.PWM_CLIMBER));
+			lifter     = new VictorSP(prefs.getInt("PWM_LIFTER", Robotmap.PWM_LIFTER));
 			
 		} else {
-			leftBack   = new WPI_VictorSPX(Robotmap.DRIVE_BACK_L);
-			leftFront  = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_L);
-			rightBack  = new WPI_VictorSPX(Robotmap.DRIVE_BACK_R);
-			rightFront = new WPI_VictorSPX(Robotmap.DRIVE_FRONT_R);
-			leftArm = new WPI_VictorSPX(Robotmap.ARM_L);
-			rightArm = new WPI_VictorSPX(Robotmap.ARM_R);		
-			climber = new WPI_VictorSPX(Robotmap.CLIMBER);
-			lifter = new WPI_TalonSRX(Robotmap.LIFTER_SRX);
+			leftBack   = new WPI_VictorSPX(prefs.getInt("DRIVE_BACK_L", Robotmap.DRIVE_BACK_L));
+			leftFront  = new WPI_VictorSPX(prefs.getInt("DRIVE_FRONT_L", Robotmap.DRIVE_FRONT_L));
+			rightBack  = new WPI_VictorSPX(prefs.getInt("DRIVE_BACK_R", Robotmap.DRIVE_BACK_R));
+			rightFront = new WPI_VictorSPX(prefs.getInt("DRIVE_FRONT_R", Robotmap.DRIVE_FRONT_R));
+			leftArm = new WPI_VictorSPX(prefs.getInt("ARM_L", Robotmap.ARM_L));
+			rightArm = new WPI_VictorSPX(prefs.getInt("ARM_R", Robotmap.ARM_R));		
+			climber = new WPI_VictorSPX(prefs.getInt("CLIMBER", Robotmap.CLIMBER));
+			lifter = new WPI_TalonSRX(prefs.getInt("LIFTER_SRX", Robotmap.LIFTER_SRX));
 			((BaseMotorController) leftBack).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
 			((BaseMotorController) leftFront).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
 			((BaseMotorController) rightBack).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
@@ -116,18 +107,17 @@ public class Robot extends TimedRobot{
 		rightBack.setInverted(false);
 		rightFront.setInverted(false);
 
-		claw = new Servo(Robotmap.ARM_SERVO);		
+		claw = new Servo(prefs.getInt("PWM_ARM_SERVO", Robotmap.PWM_ARM_SERVO));		
 		leftArm.setInverted(false);
 		rightArm.setInverted(true);
 		
 		leftGroup = new SpeedControllerGroup(leftBack, leftFront);
 		rightGroup = new SpeedControllerGroup(rightBack, rightFront);
 		drive = new DifferentialDrive(leftGroup,rightGroup);
-		
-		ultrasonic = new AnalogInput(4);
 		station = DriverStation.getInstance();
 		RobotController.Task[] tasks = new RobotController.Task[] {new RobotController.Task(TaskType.MOVE, 3), new RobotController.Task(TaskType.PICKUP, RobotController.PICKUP_STEPS)};
-		autoController = new RobotController(drive, leftArm, lifter, claw, new ArrayList<RobotController.Task>(Arrays.asList(tasks)), ahrs, ultrasonic);
+		autoController = new RobotController(drive, leftArm, lifter, claw, new ArrayList<RobotController.Task>(Arrays.asList(tasks)), ahrs);
+		autoController.ControllerInit();
 	}
 
 	/**
@@ -161,9 +151,6 @@ public class Robot extends TimedRobot{
 	 */
 	@Override
 	public void teleopPeriodic() {
-		if (gamepad.getYButtonPressed()) {
-			arcademode = !arcademode;
-		}
 		
 		if(gamepad.getXButtonPressed()) {
 			if (currentupmode == Upmode.block ) {
@@ -180,25 +167,29 @@ public class Robot extends TimedRobot{
 		
 		//turbo button
 		if (gamepad.getBumper(GenericHID.Hand.kRight)) {
-			speed = 1D;
+			speed = prefs.getDouble("DRIVE_SPEED_FAST", 1);
 		}
 		else {
-			speed = 0.3D;
+			speed = prefs.getDouble("DRIVE_SPEED_SLOW", 0.3D);
 		}
 		if (gamepad.getBumperPressed(GenericHID.Hand.kLeft)) {
-			claw.setAngle(clawServoToggle ? 0 : 90);
-			clawServoToggle = !clawServoToggle;
+			claw.set(clawServoOpen ? prefs.getDouble("ARM_SERVO_OPEN", 1) : prefs.getDouble("ARM_SERVO_CLOSE", 0.6));
+			clawServoOpen = !clawServoOpen;
+				
 		}
 		
 		if (gamepad.getBButton()) {
-			leftArm.set(-0.5D);
+			leftArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
+			rightArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
 		}
 		
 		else if (gamepad.getAButton()) {
-			leftArm.set(1);
+			leftArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 1));
+			rightArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 1));
 		}
 		else {
-			leftArm.set(0);
+			leftArm.set(prefs.getDouble("ARM_SPEED_STATIC",-0.1 ));
+			rightArm.set(prefs.getDouble("ARM_SPEED_STATIC",-0.1 ));
 		}
 		
 		if(gamepad.getTriggerAxis(GenericHID.Hand.kLeft)>0.55D) {
@@ -214,7 +205,7 @@ public class Robot extends TimedRobot{
 			climber.set(0);
 		}
 		
-		if (arcademode)
+		if (drive_chooser.getSelected())
 			drive.arcadeDrive(gamepad.getY(GenericHID.Hand.kLeft)*speed*-1D, gamepad.getX(GenericHID.Hand.kLeft)*speed,false);
 		else
 			drive.tankDrive(gamepad.getY(GenericHID.Hand.kLeft)*speed*-1D, gamepad.getY(GenericHID.Hand.kRight)*speed*-1D,false);
@@ -225,6 +216,7 @@ public class Robot extends TimedRobot{
 	 */
 	@Override
 	public void testPeriodic() {
+		SmartDashboard.putString("rs232",rs232.readString());
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -13,10 +14,9 @@ public class RobotController {
 	public enum TaskType{
 		MOVE, MOVE_TO, ROTATE_L, ROTATE_R, PICKUP, PLACE
 	};
-	public RobotController(DifferentialDrive drive, SpeedController rightArm, SpeedController lifter, Servo claw, ArrayList<Task> taskQueue, AHRS ahrs, AnalogInput ultrasonic) {
+	public RobotController(DifferentialDrive drive, SpeedController rightArm, SpeedController lifter, Servo claw, ArrayList<Task> taskQueue, AHRS ahrs) {
 		this.drive = drive;
 		this.claw = claw;
-		this.ultrasonic = ultrasonic;
 		this.taskQueue = taskQueue;
 		this.ahrs = ahrs;
 		this.arms = rightArm;
@@ -33,8 +33,12 @@ public class RobotController {
 	public static final int PLACE_STEPS = 21;
 	public AHRS ahrs;
 	public ArrayList<Task> taskQueue = new ArrayList<Task>();
-	
+	private Preferences prefs;
 	public static final int MAX_PROXIMITY = 200;
+	
+	public void ControllerInit() {
+		prefs = Preferences.getInstance();
+	}
 	public void update() {
 		if (taskProgress <= 0) {
 			drive.tankDrive(0, 0);
