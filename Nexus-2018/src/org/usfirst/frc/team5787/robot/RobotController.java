@@ -71,7 +71,7 @@ public class RobotController {
 		case PICKUP:
 			if (taskProgress == PICKUP_STEPS) {
 				taskProgress--;
-				claw.set(0);
+				claw.set(0.6);
 			}
 			else if (taskProgress > PICKUP_STEPS - 5) {
 				taskProgress--;
@@ -95,7 +95,7 @@ public class RobotController {
 				lifter.set(-0.1);
 			}
 			if (taskProgress == 16) {
-				claw.set(90);
+				claw.set(1);
 			}
 			break;
 		}
