@@ -30,7 +30,7 @@ public class RobotController {
 	public float taskProgress = 0;
 	public float prevValue;
 	public static final int PICKUP_STEPS = 20;
-	public static final int PLACE_STEPS = 21;
+	public static final int PLACE_STEPS = 31;
 	public AHRS ahrs;
 	public ArrayList<Task> taskQueue = new ArrayList<Task>();
 	private Preferences prefs;
@@ -53,6 +53,7 @@ public class RobotController {
 			drive.tankDrive(0.3, 0.3);
 			taskProgress -= Math.abs(prevValue - Math.sqrt(Math.pow(ahrs.getDisplacementX(), 2) + Math.pow(ahrs.getDisplacementZ(), 2)));
 			prevValue = (float)Math.sqrt(Math.pow(ahrs.getDisplacementX(), 2) + Math.pow(ahrs.getDisplacementZ(), 2));
+			
 			break;
 		case MOVE_TO:
 			drive.tankDrive(0.3, 0.3);
@@ -78,15 +79,16 @@ public class RobotController {
 				arms.set(1);
 			}
 			else if (taskProgress > 0) {
-				taskProgress--;
-				lifter.set(0.1);
-				
+				taskProgress = 0;
 			}
-			
-			
 			break;
 		case PLACE:
-			if (taskProgress > 16) {
+			if (taskProgress > 21) {
+				lifter.set(0.1);
+				
+				taskProgress--;
+			}
+			else if (taskProgress > 16) {
 				arms.set(-1);
 			}
 			

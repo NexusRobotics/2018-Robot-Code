@@ -71,8 +71,32 @@ public class Robot extends TimedRobot{
 		gamepad = new XboxController(0);
 		rs232 = new SerialPort(19200, SerialPort.Port.kOnboard);
 		
-		
-		
+		RobotController.Task[] tasks;
+		if (DriverStation.getInstance().getLocation() == 2) {
+			if (DriverStation.getInstance().getGameSpecificMessage().charAt(0) == 'L') {
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 98), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90)};
+			}
+			else {
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 98), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90)};
+			}
+			
+		}
+		if ((DriverStation.getInstance().getGameSpecificMessage().charAt(0) == 'L') == (DriverStation.getInstance().getLocation() == 1)) {
+			if (DriverStation.getInstance().getGameSpecificMessage().charAt(0) == 'L') {
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 209), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90), new RobotController.Task(RobotController.TaskType.MOVE, 20), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90), new RobotController.Task(RobotController.TaskType.PLACE, RobotController.PLACE_STEPS), new RobotController.Task(RobotController.TaskType.MOVE, 6), new RobotController.Task(RobotController.TaskType.PICKUP, RobotController.PICKUP_STEPS)};
+			}
+			else {
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 209), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90), new RobotController.Task(RobotController.TaskType.MOVE, 20), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90), new RobotController.Task(RobotController.TaskType.PLACE, RobotController.PLACE_STEPS), new RobotController.Task(RobotController.TaskType.MOVE, 6), new RobotController.Task(RobotController.TaskType.PICKUP, RobotController.PICKUP_STEPS)};
+			}
+		}
+		else {
+			if (DriverStation.getInstance().getGameSpecificMessage().charAt(0) == 'L') {
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 209), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90), new RobotController.Task(RobotController.TaskType.MOVE, 133), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90), new RobotController.Task(RobotController.TaskType.PLACE, RobotController.PLACE_STEPS), new RobotController.Task(RobotController.TaskType.MOVE, 6), new RobotController.Task(RobotController.TaskType.PICKUP, RobotController.PICKUP_STEPS)};
+			}
+			else {
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 209), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90), new RobotController.Task(RobotController.TaskType.MOVE, 133), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90), new RobotController.Task(RobotController.TaskType.PLACE, RobotController.PLACE_STEPS), new RobotController.Task(RobotController.TaskType.MOVE, 6), new RobotController.Task(RobotController.TaskType.PICKUP, RobotController.PICKUP_STEPS)};
+			}
+		}
 		if (isPracticerobot) {
 			leftBack   = new VictorSP(prefs.getInt("PWM_DRIVE_BACK_L", Robotmap.PWM_DRIVE_BACK_L));
 			leftFront  = new VictorSP(prefs.getInt("PWM_DRIVE_FRONT_L",Robotmap.PWM_DRIVE_FRONT_L));
@@ -115,7 +139,7 @@ public class Robot extends TimedRobot{
 		rightGroup = new SpeedControllerGroup(rightBack, rightFront);
 		drive = new DifferentialDrive(leftGroup,rightGroup);
 		station = DriverStation.getInstance();
-		RobotController.Task[] tasks = new RobotController.Task[] {new RobotController.Task(TaskType.MOVE, 3), new RobotController.Task(TaskType.PICKUP, RobotController.PICKUP_STEPS)};
+		//RobotController.Task[] tasks = new RobotController.Task[] {new RobotController.Task(TaskType.MOVE, 3), new RobotController.Task(TaskType.PICKUP, RobotController.PICKUP_STEPS)};
 		autoController = new RobotController(drive, leftArm, lifter, claw, new ArrayList<RobotController.Task>(Arrays.asList(tasks)), ahrs);
 		autoController.ControllerInit();
 	}
