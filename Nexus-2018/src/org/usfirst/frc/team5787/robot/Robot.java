@@ -74,10 +74,10 @@ public class Robot extends TimedRobot{
 		RobotController.Task[] tasks;
 		if (DriverStation.getInstance().getLocation() == 2) {
 			if (DriverStation.getInstance().getGameSpecificMessage().charAt(0) == 'L') {
-				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 98), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90)};
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 98), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90), new RobotController.Task(RobotController.TaskType.MOVE, 48), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90), new RobotController.Task(RobotController.TaskType.MOVE, 35), new RobotController.Task(RobotController.TaskType.PLACE, RobotController.PLACE_STEPS)};
 			}
 			else {
-				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 98), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90)};
+				tasks = new RobotController.Task[] {new RobotController.Task(RobotController.TaskType.MOVE, 98), new RobotController.Task(RobotController.TaskType.ROTATE_R, 90), new RobotController.Task(RobotController.TaskType.MOVE, 48), new RobotController.Task(RobotController.TaskType.ROTATE_L, 90), new RobotController.Task(RobotController.TaskType.MOVE, 35), new RobotController.Task(RobotController.TaskType.PLACE, RobotController.PLACE_STEPS)};
 			}
 			
 		}
