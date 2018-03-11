@@ -69,7 +69,7 @@ public class Robot extends TimedRobot{
 		drive_chooser.addObject("Arcade Drive", Boolean.TRUE);
 		SmartDashboard.putData("Drive Mode", drive_chooser);
 		gamepad = new XboxController(0);
-		rs232 = new SerialPort(19200, SerialPort.Port.kOnboard);
+		rs232 = new SerialPort(115200, SerialPort.Port.kOnboard);
 		
 		RobotController.Task[] tasks;
 		if (DriverStation.getInstance().getLocation() == 2) {
