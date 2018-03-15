@@ -42,6 +42,7 @@ public class Robot extends IterativeRobot{
 	private Preferences prefs = Preferences.getInstance();
 	//private SerialPort rs232;
 	private DriverStation station;
+	private Timer timer = new Timer();
 	private boolean clawServoOpen = true;
 	private boolean clawiskill = false;
 	private int clawrevivecount = 0;
@@ -126,7 +127,8 @@ public class Robot extends IterativeRobot{
 	 */
 	@Override
 	public void autonomousInit() {
-		
+		timer.reset();
+		timer.start();
 	}
 
 	/**
@@ -134,7 +136,11 @@ public class Robot extends IterativeRobot{
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		drivetrain.drive.tankDrive(0.03, 0.03, false);
+		if (timer.get()<prefs.getDouble("AUTO_TIME", 8)) {
+			drivetrain.drive.tankDrive(0.35, 0.36,false);
+		}/*else if (timer.get()<2.5){
+			grabber.claw.set(0.33);
+		}*/
 		//drive.tankDrive(1D, 0, false);
 	}
 
@@ -153,8 +159,6 @@ public class Robot extends IterativeRobot{
 				currentupmode = Upmode.block;
 				climber.climber.set(0);
 			}
-			
-				
 		}
 		
 		//turbo button
@@ -174,7 +178,7 @@ public class Robot extends IterativeRobot{
 		}*/
 		//grabber.claw.set(manipxbox.getY(Generic));
 		
-		if (driverxbox.getBumper(GenericHID.Hand.kRight)) {
+		if (driverxbox.getBumper(GenericHID.Hand.kRight)||manipxbox.getBButton()) {
 			grabber.leftArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
 			grabber.rightArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
 		}
@@ -189,13 +193,13 @@ public class Robot extends IterativeRobot{
 		}
 		
 		if (currentupmode==Upmode.me) {
-			climber.climber.set(driverxbox.getY(GenericHID.Hand.kRight)*-1);
-		} else if (currentupmode==Upmode.block){
-		lifter.lifter.set(manipxbox.getY(GenericHID.Hand.kLeft)*-1);
-		} else{
-			lifter.lifter.set(0);
-			climber.climber.set(0);
+			if (!manipxbox.getBumper(GenericHID.Hand.kLeft)) {
+				climber.climber.set(driverxbox.getY(GenericHID.Hand.kRight)*-1);
+			} else {
+				climber.climber.set(manipxbox.getY(GenericHID.Hand.kRight)*-1);
+			}
 		}
+		lifter.lifter.set(manipxbox.getY(GenericHID.Hand.kLeft)*-1);
 		if(driverxbox.getYButtonPressed()) {
 			arcademode = !arcademode;
 		}
