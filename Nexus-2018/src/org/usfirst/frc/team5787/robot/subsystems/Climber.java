@@ -18,6 +18,7 @@ public class Climber extends Subsystem {
 	public Climber() {
 		climber = new WPI_VictorSPX(prefs.getInt("CLIMBER", Robotmap.CLIMBER));
 		climber.setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
+		climber.setInverted(true);
 	}
 	
     // Put methods for controlling this subsystem

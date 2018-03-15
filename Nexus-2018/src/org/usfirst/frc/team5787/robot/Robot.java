@@ -48,6 +48,7 @@ public class Robot extends IterativeRobot{
 	private int clawrevivecount = 0;
 	private SendableChooser<Boolean> drive_chooser = new SendableChooser<>();
 	private SendableChooser<Automode> automode = new SendableChooser<>(); 
+	private SendableChooser<Number> startposition = new SendableChooser<Number>();
 	private XboxController driverxbox, manipxbox;
 	private boolean arcademode = false;
 	private AnalogInput ultrasonic;
@@ -163,10 +164,10 @@ public class Robot extends IterativeRobot{
 		
 		//turbo button
 		if (driverxbox.getBumper(GenericHID.Hand.kRight)) {
-			speed = prefs.getDouble("DRIVE_SPEED_FAST", 1);
+			speed = prefs.getDouble("DRIVE_SPEED_FAST", 0.5);
 		}
 		else {
-			speed = prefs.getDouble("DRIVE_SPEED_SLOW", 0.3D);
+			speed = prefs.getDouble("DRIVE_SPEED_SLOW", 0.5);
 		}
 		/*if (manipxbox.getBumperPressed(GenericHID.Hand.kLeft)) {
 			clawiskill = true;
@@ -205,7 +206,7 @@ public class Robot extends IterativeRobot{
 		}
 		if (currentupmode == Upmode.block) {
 			if (arcademode)
-				drivetrain.drive.arcadeDrive(driverxbox.getY(GenericHID.Hand.kLeft)*speed*-1D, driverxbox.getX(GenericHID.Hand.kRight)*speed,false);
+				drivetrain.drive.arcadeDrive(driverxbox.getY(GenericHID.Hand.kLeft)*speed*-1D, driverxbox.getX(GenericHID.Hand.kLeft)*speed,false);
 			else
 				drivetrain.drive.tankDrive(driverxbox.getY(GenericHID.Hand.kLeft)*speed*-1D, driverxbox.getY(GenericHID.Hand.kRight)*speed*-1D,false);
 		} else {
