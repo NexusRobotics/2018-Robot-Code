@@ -75,6 +75,10 @@ public class Robot extends IterativeRobot{
 	public void robotInit() {
 		drive_chooser.addDefault("Tank Drive", Boolean.FALSE);
 		drive_chooser.addObject("Arcade Drive", Boolean.TRUE);
+		startposition.addDefault("left", 1);
+		startposition.addObject("center", 2);
+		startposition.addObject("right", 3);
+		SmartDashboard.putData(startposition);
 		SmartDashboard.putData("Drive Mode", drive_chooser);
 		driverxbox = new XboxController(0);
 		manipxbox = new XboxController(1);
@@ -137,12 +141,12 @@ public class Robot extends IterativeRobot{
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		if (timer.get()<prefs.getDouble("AUTO_TIME", 8)) {
+		if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
 			drivetrain.drive.tankDrive(0.35, 0.36,false);
-		}/*else if (timer.get()<2.5){
-			grabber.claw.set(0.33);
-		}*/
-		//drive.tankDrive(1D, 0, false);
+		} else if((startposition.getSelected().intValue() == 2)&&(station.getGameSpecificMessage().charAt(0)=='R')) {
+			grabber.leftArm.set(0.4);
+			grabber.leftArm.set(0.4);
+		}
 	}
 
 	/**
