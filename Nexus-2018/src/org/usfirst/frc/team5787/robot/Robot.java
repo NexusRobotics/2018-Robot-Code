@@ -259,19 +259,27 @@ public class Robot extends IterativeRobot implements PIDOutput{
 		}*/
 		//grabber.claw.set(manipxbox.getY(Generic));
 		
+		
+		
+		
+		
 		if (driverxbox.getBumper(GenericHID.Hand.kRight)||manipxbox.getBButton()) {
 			grabber.leftArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
 			grabber.rightArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
 		}
 		
 		else if (manipxbox.getAButton()) {
-			grabber.leftArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 1));
-			grabber.rightArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 1));
+			grabber.leftArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 0.5));
+			grabber.rightArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 0.5));
+		} else {
+			grabber.leftArm.set(manipxbox.getY(GenericHID.Hand.kLeft)*-0.6);
+			grabber.rightArm.set(manipxbox.getY(GenericHID.Hand.kRight)*-0.6);
 		}
-		else {
-			grabber.leftArm.set(prefs.getDouble("ARM_SPEED_STATIC",-0.1 ));
-			grabber.rightArm.set(prefs.getDouble("ARM_SPEED_STATIC",-0.1 ));
-		}
+		
+		
+		
+		
+	
 		
 		if (currentupmode==Upmode.me) {
 			if (!manipxbox.getBumper(GenericHID.Hand.kLeft)) {
@@ -280,7 +288,13 @@ public class Robot extends IterativeRobot implements PIDOutput{
 				climber.climber.set(manipxbox.getY(GenericHID.Hand.kRight)*-1);
 			}
 		}
-		lifter.lifter.set(manipxbox.getY(GenericHID.Hand.kLeft)*-1);
+		//lifter code triggers on manipulating xbox
+		if (manipxbox.getTriggerAxis(GenericHID.Hand.kRight)>=0.55) {
+			lifter.lifter.set((manipxbox.getTriggerAxis(GenericHID.Hand.kRight)-0.5D)*-2D);
+		}else if (manipxbox.getTriggerAxis(GenericHID.Hand.kLeft)>=0.55) {
+			lifter.lifter.set((manipxbox.getTriggerAxis(GenericHID.Hand.kLeft)-0.5D)*2D);
+		}
+	
 		if(driverxbox.getYButtonPressed()) {
 			arcademode = !arcademode;
 		}
