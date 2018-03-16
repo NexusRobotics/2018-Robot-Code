@@ -1,0 +1,18 @@
+Physical: 
+    ??update navx fireware
+      Calibrate navx orientation/omnimount
+    ??find centers of mass
+      test auto
+    
+Software:
+      add all subsystems
+      set up software map
+      impletent tilt detection
+      multiple controllers
+      read ultrasonic sensors
+      PID Speed and lifter control
+      http://www.ctr-electronics.com/downloads/pdf/Talon%20SRX%20Software%20Reference%20Manual.pdf
+      acceleration control
+    ??recording
+      auto switch/lifter
+      
