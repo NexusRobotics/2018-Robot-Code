@@ -7,6 +7,7 @@
 
 package org.usfirst.frc.team5787.robot;
 
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -31,30 +32,33 @@ import com.kauailabs.navx.frc.AHRS;
  * creating this project, you must also update the build.properties file in the
  * project.
  */
-public class Robot extends IterativeRobot{
+public class Robot extends IterativeRobot implements PIDOutput{
 	public static final boolean IS_PRACTICE_ROBOT = false;
 	private enum Automode{
-		defaultauto, drivestraight, testauto
+		defaultauto, testauto
 	}
 	
 	private static Robot instance;
 	
 	private Preferences prefs = Preferences.getInstance();
 	//private SerialPort rs232;
+	private double autorotaterate;
+	private double[] displacement = {0,0,0};
 	private DriverStation station;
+	UsbCamera camera;
 	private Timer timer = new Timer();
 	private boolean clawServoOpen = true;
 	private boolean clawiskill = false;
 	private int clawrevivecount = 0;
 	private SendableChooser<Boolean> drive_chooser = new SendableChooser<>();
 	private SendableChooser<Automode> automode = new SendableChooser<>(); 
-	private SendableChooser<Number> startposition = new SendableChooser<Number>();
+	private SendableChooser<String> startposition = new SendableChooser<String>();
 	private XboxController driverxbox, manipxbox;
 	private boolean arcademode = false;
 	private AnalogInput ultrasonic;
 	private double speed = 0.3D;
 	private RobotController autoController;
-	private AHRS ahrs;
+	private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
 	public final Drivetrain drivetrain = new Drivetrain(prefs.getBoolean("IS_PRACTICE_ROBOT", IS_PRACTICE_ROBOT));
 	public final Grabber grabber = new Grabber(prefs.getBoolean("IS_PRACTICE_ROBOT", IS_PRACTICE_ROBOT));
 	public final Climber climber = new Climber();
@@ -73,13 +77,26 @@ public class Robot extends IterativeRobot{
 	 */
 	@Override
 	public void robotInit() {
+		
+		ahrs.resetDisplacement();
+		ahrs.reset();
+		ahrs.getYaw();
+		camera = CameraServer.getInstance().startAutomaticCapture();
+		camera.setResolution(270, 203);
+		camera.setFPS(15);
 		drive_chooser.addDefault("Tank Drive", Boolean.FALSE);
 		drive_chooser.addObject("Arcade Drive", Boolean.TRUE);
-		startposition.addDefault("left", 1);
-		startposition.addObject("center", 2);
-		startposition.addObject("right", 3);
+		
+		automode.addDefault("default", Automode.defaultauto);
+		automode.addObject("Experimental", Automode.testauto);
+		
+		startposition.addDefault("Switch Align", "switch");
+		startposition.addObject("Left", "left");
+		startposition.addObject("Center", "center");
+		startposition.addObject("Right", "right");
 		SmartDashboard.putData(startposition);
 		SmartDashboard.putData("Drive Mode", drive_chooser);
+		SmartDashboard.putData(automode);
 		driverxbox = new XboxController(0);
 		manipxbox = new XboxController(1);
 		//rs232 = new SerialPort(115200, SerialPort.Port.kOnboard);
@@ -134,6 +151,10 @@ public class Robot extends IterativeRobot{
 	public void autonomousInit() {
 		timer.reset();
 		timer.start();
+		SmartDashboard.putData(startposition);
+		ahrs.reset();
+		ahrs.resetDisplacement();
+		ahrs.zeroYaw();
 	}
 
 	/**
@@ -141,17 +162,72 @@ public class Robot extends IterativeRobot{
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
-			drivetrain.drive.tankDrive(0.35, 0.36,false);
-		} else if((startposition.getSelected().intValue() == 2)&&(station.getGameSpecificMessage().charAt(0)=='R')) {
-			grabber.leftArm.set(0.4);
-			grabber.leftArm.set(0.4);
+		
+		switch (prefs.getString("START", "switch")) {
+		case "left":
+			if (timer.get()<prefs.getDouble("AUTO_TIME_SIDE", 3)) {
+				drivetrain.drive.tankDrive(0.35, 0.36,false);
+			}
+			break;
+		case "center":
+			if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
+				drivetrain.drive.tankDrive(0.35, 0.36,false);
+			}
+			break;
+		case "switch":
+			if(prefs.getBoolean("TEST_AUTO", false)) {
+				if ((station.getGameSpecificMessage().charAt(0)=='R')) {
+					if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
+						drivetrain.drive.tankDrive(0.35, 0.36,false);
+					} else if (station.getGameSpecificMessage().charAt(0)=='R') {
+						grabber.leftArm.set(0.4);
+						grabber.leftArm.set(0.4);
+					}
+				} else {
+					double autospeed, autorotation;
+					/*
+					 * put the cool stuff here
+					 * 
+					 * */
+					
+					
+					//  ]drivetrain.drive.arcadeDrive(autospeed, autorotation, false);
+				}
+			}else {
+				if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
+					drivetrain.drive.tankDrive(0.37, 0.38,false);
+				} else if (station.getGameSpecificMessage().charAt(0)=='R') {
+					grabber.leftArm.set(0.4);
+					grabber.leftArm.set(0.4);
+				}
+			}
+			break;
+		case "right":
+			if (timer.get()<prefs.getDouble("AUTO_TIME_SIDE", 3)) {
+				drivetrain.drive.tankDrive(0.35, 0.36,false);
+			}
+			break;
 		}
+		
+		
+		/*if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
+			drivetrain.drive.tankDrive(0.35, 0.36,false);
+		} else if((startposition.getSelected() == "switch")&&(station.getGameSpecificMessage().charAt(0)=='R')) {
+			grabber.leftArm.set(0.4);
+			grabber.leftArm.set(0.4);
+		}*/
 	}
 
 	/**
 	 * This function is called periodically during operator control.
 	 */
+	@Override
+	public void teleopInit() {  
+		SmartDashboard.putNumber("SET_SERVO_please?", 0.6);
+		ahrs.reset();
+		ahrs.resetDisplacement();
+		ahrs.zeroYaw();
+	}
 	@Override
 	public void teleopPeriodic() {
 		
@@ -218,8 +294,15 @@ public class Robot extends IterativeRobot{
 		}
 		SmartDashboard.putData("Drive", drivetrain.drive);
 		SmartDashboard.putNumber("exper", drivetrain.drive.getExpiration());
+		
+		grabber.claw.set(SmartDashboard.getNumber("SET_SERVO_please?", 0.5));
 		SmartDashboard.putNumber("servopos", grabber.claw.getPosition());
 		SmartDashboard.putNumber("servo", grabber.claw.get());
+		SmartDashboard.putNumber("yaw", ahrs.getYaw());
+		
+		SmartDashboard.putNumber("disx", ahrs.getDisplacementX());
+		SmartDashboard.putNumber("disy", ahrs.getDisplacementY());
+		SmartDashboard.putNumber("dizz", ahrs.getDisplacementZ());
 	}
 	public static Robot getInstance() {
 		return instance;
@@ -228,9 +311,17 @@ public class Robot extends IterativeRobot{
 	/**
 	 * This function is called periodically during test mode.
 	 */
+	
 	@Override
 	public void testPeriodic() {
 		//SmartDashboard.putString("rs232",rs232.readString());
+		grabber.claw.set(SmartDashboard.getNumber("SET_SERVO", 0.5));
+		SmartDashboard.putNumber("servopos", grabber.claw.getPosition());
+		SmartDashboard.putNumber("servo", grabber.claw.get());
+	}
+	@Override
+	public void pidWrite(double pid) {
+		autorotaterate = pid;
 	}
 
 }

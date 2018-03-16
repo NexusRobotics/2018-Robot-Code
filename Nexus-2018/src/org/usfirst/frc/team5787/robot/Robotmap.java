@@ -15,7 +15,7 @@ public class Robotmap {
 	public static final int LIFTER_SRX = 0;
 	
 	//PWM Ports
-	public static final int PWM_ARM_SERVO = 9;
+	public static final int PWM_ARM_SERVO = 8;
 	public static final int PWM_DRIVE_FRONT_R = 1;
 	public static final int PWM_DRIVE_BACK_R = 2;
 	public static final int PWM_ARM_L = 8;
