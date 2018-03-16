@@ -285,7 +285,7 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			if (!manipxbox.getBumper(GenericHID.Hand.kLeft)) {
 				climber.climber.set(driverxbox.getY(GenericHID.Hand.kRight)*-1);
 			} else {
-				climber.climber.set(manipxbox.getY(GenericHID.Hand.kRight)*-1);
+				climber.climber.set(manipxbox.getY(GenericHID.Hand.kRight));
 			}
 		}
 		//lifter code triggers on manipulating xbox
