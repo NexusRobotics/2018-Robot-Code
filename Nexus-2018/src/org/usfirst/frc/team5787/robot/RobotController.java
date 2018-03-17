@@ -9,12 +9,13 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import org.usfirst.frc.team5787.robot.subsystems.*;
 
 public class RobotController {
 	public enum TaskType{
 		MOVE, MOVE_TO, ROTATE_L, ROTATE_R, PICKUP, PLACE
 	};
-	public RobotController(DifferentialDrive drive, SpeedController rightArm, SpeedController lifter, Servo claw, ArrayList<Task> taskQueue, AHRS ahrs) {
+	public RobotController( SpeedController rightArm, SpeedController lifter, Servo claw, ArrayList<Task> taskQueue, AHRS ahrs) {
 		this.drive = drive;
 		this.claw = claw;
 		this.taskQueue = taskQueue;
@@ -24,6 +25,7 @@ public class RobotController {
 		
 	}
 	public SpeedController arms, lifter;
+	private final Drivetrain drivetrain = Robot.getInstance().drivetrain;
 	public DifferentialDrive drive;
 	public Servo claw;
 	public AnalogInput ultrasonic;

@@ -3,8 +3,8 @@ package org.usfirst.frc.team5787.robot;
 public class Robotmap {
 	
 	//Victor SPX's
-	public static final int ARM_L = 0;
-	public static final int ARM_R = 1;
+	public static final int ARM_L = 1;
+	public static final int ARM_R = 0;
 	public static final int CLIMBER = 8;
 	public static final int DRIVE_BACK_L = 5;
 	public static final int DRIVE_FRONT_L = 7;
@@ -15,7 +15,7 @@ public class Robotmap {
 	public static final int LIFTER_SRX = 0;
 	
 	//PWM Ports
-	public static final int PWM_ARM_SERVO = 9;
+	public static final int PWM_ARM_SERVO = 8;
 	public static final int PWM_DRIVE_FRONT_R = 1;
 	public static final int PWM_DRIVE_BACK_R = 2;
 	public static final int PWM_ARM_L = 8;
