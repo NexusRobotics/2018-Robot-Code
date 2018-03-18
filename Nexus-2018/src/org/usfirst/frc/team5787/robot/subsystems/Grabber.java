@@ -30,7 +30,6 @@ public class Grabber extends Subsystem {
 			rightArm = new WPI_VictorSPX(prefs.getInt("ARM_R", Robotmap.ARM_R));
 			((BaseMotorController) leftArm).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 			((BaseMotorController) rightArm).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
-			((WPI_VictorSPX) rightArm).set(com.ctre.phoenix.motorcontrol.ControlMode.Follower, Robotmap.ARM_L);
 		}
 		claw = new Servo(prefs.getInt("PWM_ARM_SERVO", Robotmap.PWM_ARM_SERVO));		
 		leftArm.setInverted(false);

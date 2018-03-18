@@ -198,7 +198,7 @@ public class Robot extends IterativeRobot implements PIDOutput{
 					drivetrain.drive.tankDrive(0.37, 0.38,false);
 				} else if (station.getGameSpecificMessage().charAt(0)=='R') {
 					grabber.leftArm.set(0.4);
-					grabber.leftArm.set(0.4);
+					grabber.rightArm.set(0.4);
 				}
 			}
 			break;
