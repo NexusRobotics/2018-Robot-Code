@@ -33,7 +33,7 @@ import com.kauailabs.navx.frc.AHRS;
  * project.
  */
 public class Robot extends IterativeRobot implements PIDOutput{
-	public static final boolean IS_PRACTICE_ROBOT = false;
+	public static final boolean IS_PRACTICE_ROBOT = true;
 	private enum Automode{
 		defaultauto, testauto
 	}
@@ -61,8 +61,8 @@ public class Robot extends IterativeRobot implements PIDOutput{
 	private AHRS ahrs = new AHRS(SPI.Port.kMXP);;
 	public final Drivetrain drivetrain = new Drivetrain(prefs.getBoolean("IS_PRACTICE_ROBOT", IS_PRACTICE_ROBOT));
 	public final Grabber grabber = new Grabber(prefs.getBoolean("IS_PRACTICE_ROBOT", IS_PRACTICE_ROBOT));
-	public final Climber climber = new Climber();
-	public final Lifter lifter = new Lifter();
+	//public final Climber climber = new Climber();
+	//public final Lifter lifter = new Lifter();
 	private enum Upmode{
 	me, block
 	}
@@ -181,7 +181,7 @@ public class Robot extends IterativeRobot implements PIDOutput{
 						drivetrain.drive.tankDrive(0.35, 0.36,false);
 					} else if (station.getGameSpecificMessage().charAt(0)=='R') {
 						grabber.leftArm.set(0.4);
-						grabber.leftArm.set(0.4);
+						grabber.rightArm.set(0.4);
 					}
 				} else {
 					double autospeed, autorotation;
@@ -234,11 +234,11 @@ public class Robot extends IterativeRobot implements PIDOutput{
 		if(driverxbox.getBumperPressed(GenericHID.Hand.kLeft)) {
 			if (currentupmode == Upmode.block ) {
 				currentupmode = Upmode.me;
-				lifter.lifter.set(0);
+				//lifter.lifter.set(0);
 			} 
 			else {
 				currentupmode = Upmode.block;
-				climber.climber.set(0);
+				//climber.climber.set(0);
 			}
 		}
 		
@@ -272,8 +272,8 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			grabber.leftArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 0.5));
 			grabber.rightArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 0.5));
 		} else {
-			grabber.leftArm.set(manipxbox.getY(GenericHID.Hand.kLeft)*-0.45);
-			grabber.rightArm.set(manipxbox.getY(GenericHID.Hand.kRight)*-0.45);
+			grabber.leftArm.set(manipxbox.getY(GenericHID.Hand.kLeft)*-0.6);
+			grabber.rightArm.set(manipxbox.getY(GenericHID.Hand.kRight)*-0.6);
 		}
 		
 		
@@ -281,7 +281,7 @@ public class Robot extends IterativeRobot implements PIDOutput{
 		
 	
 		
-		if (currentupmode==Upmode.me) {
+	/*	if (currentupmode==Upmode.me) {
 			
 				climber.climber.set(driverxbox.getY(GenericHID.Hand.kRight));
 			
@@ -293,7 +293,7 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			lifter.lifter.set((manipxbox.getTriggerAxis(GenericHID.Hand.kLeft)-0.5D)*-2D);
 		} else {
 			lifter.lifter.set(0);
-		}
+		}*/
 	
 		if(driverxbox.getYButtonPressed()) {
 			arcademode = !arcademode;
@@ -304,15 +304,15 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			else
 				drivetrain.drive.tankDrive(driverxbox.getY(GenericHID.Hand.kLeft)*speed*-1D, driverxbox.getY(GenericHID.Hand.kRight)*speed*-1D,false);
 		} else {
-			drivetrain.drive.arcadeDrive(driverxbox.getY(GenericHID.Hand.kLeft)*speed*-1D, driverxbox.getX(GenericHID.Hand.kLeft)*speed,false);
+			drivetrain.drive.arcadeDrive(driverxbox.getY(GenericHID.Hand.kLeft)*speed, driverxbox.getX(GenericHID.Hand.kLeft)*speed,false);
 		}
 		SmartDashboard.putData("Drive", drivetrain.drive);
 		SmartDashboard.putNumber("exper", drivetrain.drive.getExpiration());
 		
-		grabber.claw.set(SmartDashboard.getNumber("SET_SERVO_please?", 0.5));
+		/*grabber.claw.set(SmartDashboard.getNumber("SET_SERVO_please?", 0.5));
 		SmartDashboard.putNumber("servopos", grabber.claw.getPosition());
 		SmartDashboard.putNumber("servo", grabber.claw.get());
-		SmartDashboard.putNumber("yaw", ahrs.getYaw());
+		SmartDashboard.putNumber("yaw", ahrs.getYaw());*/
 		
 		SmartDashboard.putNumber("disx", ahrs.getDisplacementX());
 		SmartDashboard.putNumber("disy", ahrs.getDisplacementY());
@@ -329,9 +329,9 @@ public class Robot extends IterativeRobot implements PIDOutput{
 	@Override
 	public void testPeriodic() {
 		//SmartDashboard.putString("rs232",rs232.readString());
-		grabber.claw.set(SmartDashboard.getNumber("SET_SERVO", 0.5));
+		/*grabber.claw.set(SmartDashboard.getNumber("SET_SERVO", 0.5));
 		SmartDashboard.putNumber("servopos", grabber.claw.getPosition());
-		SmartDashboard.putNumber("servo", grabber.claw.get());
+		SmartDashboard.putNumber("servo", grabber.claw.get());*/
 	}
 	@Override
 	public void pidWrite(double pid) {
