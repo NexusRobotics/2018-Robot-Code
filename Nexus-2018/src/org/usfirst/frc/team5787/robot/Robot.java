@@ -208,7 +208,7 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			}
 			break;
 			
-		/*changes by KBS, edit values in strings as you please, since I don't know the values for displacement with
+		/*changes by KBS, edit values where text is as you please, since I don't know the values for displacement which
 			doesn't need to be precise, just enough to get into the ballpark for a succesful rotation and scale
 			dump during auto.
 			
@@ -217,8 +217,9 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			
 			i may have the angles wrong based on sensor calibration but i think they're ok
 			*/
-		/case "left scale left robot":
-			if (station.getGameSpecificMessage().charAt(1)=='L') {
+			
+		case "left scale left robot":
+			if (station.getGameSpecificMessage().charAt(1) == 'L') {
 				while (ahrs.getDisplacementX() < distance to rotation 1 at midline) {
 					drivetrain.drive.tankDrive(0.35, 0.36,false);
 				}
@@ -275,8 +276,62 @@ public class Robot extends IterativeRobot implements PIDOutput{
 			}
 			break;
 		
+		case "right scale right robot":
+			if (station.getGameSpecificMessage().charAt(1) == 'R') {
+				while (ahrs.getDisplacementX() < distance to rotation 1 at midline) {
+					drivetrain.drive.tankDrive(0.35, 0.36,false);
+				}
+				while (ahrs.getYaw() > -90) {
+					drivetrain.drive.tankDrive(-0.3, 0.3,false);
+				}
+				//can totally use another method to make the lifter go to maximum height
+				while (lifter height < condition for lifter at maxiumum height) {
+					lifter.lifter.set(0.1);
+				}
+				ahrs.resetDisplacement();
+				while (ahrs.getDisplacementX() < displacement from robot position at midpoint after rotation 
+						to a position to be able to place a cube on scale) {
+					drivetrain.drive.tankDrive(0.35, 0.36,false)
+				}
+				grabber.leftArm.set(0.4);
+				grabber.rightArm.set(0.4);
+			}
+			break;
 		
-		
+		case "left scale right robot":
+			if (station.getGameSpecificMessage().charAt(1) == 'L') {
+				while (ahrs.getDisplacementX() < distance to rotation 1 behind switch) {
+					drivetrain.drive.tankDrive(0.35, 0.36,false);
+				}
+				while (ahrs.getYaw() > -90) {
+					drivetrain.drive.tankDrive(-0.3, 0.3,false);
+				}
+				ahrs.resetDisplacement();
+				while (ahrs.getDisplacementX() < distance from rotation 1 behind switch to rotation 2 behind switch) {
+					drivetrain.drive.tankDrive(0.35, 0.36);
+				}
+				while (ahrs.getYaw() < 0) {
+					drivetrain.drive.tankDrive(0.3, -0.3,false);
+				}
+				ahrs.resetDisplacement();
+				while (ahrs.getDisplacementX() < displacement from rotation 2 to rotation 3 at midline) {
+					drivetrain.drive.tankDrive(0.35, 0.36,false)
+				}
+				while (ahrs.getYaw() < 90) {
+					drivetrain.drive.tankDrive(0.3, -0.3,false);
+				}
+				ahrs.resetDisplacement();
+				while (ahrs.getDisplacementX() < displacement from robot position at midpoint after rotation 
+						to a position to be able to place a cube on scale) {
+					drivetrain.drive.tankDrive(0.35, 0.36,false)
+				}
+				//can totally use another method to make the lifter go to maximum height
+				while (lifter height < condition for lifter at maxiumum height) {
+					lifter.lifter.set(0.1);
+				}
+				grabber.leftArm.set(0.4);
+				grabber.rightArm.set(0.4);
+			}
 		/*if (timer.get()<prefs.getDouble("AUTO_TIME", 2)) {
 			drivetrain.drive.tankDrive(0.35, 0.36,false);
 		} else if((startposition.getSelected() == "switch")&&(station.getGameSpecificMessage().charAt(0)=='R')) {
