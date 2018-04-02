@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class Grabber extends Subsystem {
 
 	public SpeedController leftArm, rightArm;
-	public Servo claw;
 	private Preferences prefs = Preferences.getInstance();
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
@@ -31,9 +30,6 @@ public class Grabber extends Subsystem {
 			((BaseMotorController) leftArm).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 			((BaseMotorController) rightArm).setNeutralMode(com.ctre.phoenix.motorcontrol.NeutralMode.Brake);
 		}
-		claw = new Servo(prefs.getInt("PWM_ARM_SERVO", Robotmap.PWM_ARM_SERVO));		
-		leftArm.setInverted(false);
-		rightArm.setInverted(true);
 	}
 
     public void initDefaultCommand() {

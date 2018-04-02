@@ -12,7 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
  *
  */
 public class Drivetrain extends Subsystem {
-	private SpeedController leftBack, leftFront, rightBack, rightFront;
+	public SpeedController leftBack, leftFront, rightBack, rightFront;
 	private SpeedControllerGroup leftGroup, rightGroup;
 	
 	Preferences prefs = Preferences.getInstance();

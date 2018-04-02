@@ -15,9 +15,8 @@ public class RobotController {
 	public enum TaskType{
 		MOVE, MOVE_TO, ROTATE_L, ROTATE_R, PICKUP, PLACE
 	};
-	public RobotController( SpeedController rightArm, SpeedController lifter, Servo claw, ArrayList<Task> taskQueue, AHRS ahrs) {
+	public RobotController( SpeedController rightArm, SpeedController lifter, ArrayList<Task> taskQueue, AHRS ahrs) {
 		this.drive = drive;
-		this.claw = claw;
 		this.taskQueue = taskQueue;
 		this.ahrs = ahrs;
 		this.arms = rightArm;
@@ -27,7 +26,6 @@ public class RobotController {
 	public SpeedController arms, lifter;
 	private final Drivetrain drivetrain = Robot.getInstance().drivetrain;
 	public DifferentialDrive drive;
-	public Servo claw;
 	public AnalogInput ultrasonic;
 	public float taskProgress = 0;
 	public float prevValue;
@@ -37,6 +35,7 @@ public class RobotController {
 	public ArrayList<Task> taskQueue = new ArrayList<Task>();
 	private Preferences prefs;
 	public static final int MAX_PROXIMITY = 200;
+	public final Grabber grabber = new Grabber(prefs.getBoolean("IS_PRACTICE_ROBOT", Robot.IS_PRACTICE_ROBOT));
 	
 	public void ControllerInit() {
 		prefs = Preferences.getInstance();
@@ -74,7 +73,8 @@ public class RobotController {
 		case PICKUP:
 			if (taskProgress == PICKUP_STEPS) {
 				taskProgress--;
-				claw.set(0.6);
+				grabber.leftArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
+				grabber.rightArm.set(prefs.getDouble("ARM_SPEED_PULL", -0.5D));
 			}
 			else if (taskProgress > PICKUP_STEPS - 5) {
 				taskProgress--;
@@ -99,7 +99,8 @@ public class RobotController {
 				lifter.set(-0.1);
 			}
 			if (taskProgress == 16) {
-				claw.set(1);
+				grabber.leftArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 0.5));
+				grabber.rightArm.set(prefs.getDouble("ARM_SPEED_SHOOT", 0.5));
 			}
 			break;
 		}
