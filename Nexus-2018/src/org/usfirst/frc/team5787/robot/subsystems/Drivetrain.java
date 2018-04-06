@@ -11,10 +11,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 /**
  *
  */
-public class Drivetrain extends Subsystem {
+public class Drivetrain extends Subsystem implements PIDOutput{
 	private SpeedController leftBack, leftFront, rightBack, rightFront;
 	private SpeedControllerGroup leftGroup, rightGroup;
-	
+	private double offset;
+	public double autospeed = 0.4;
 	Preferences prefs = Preferences.getInstance();
 	public DifferentialDrive drive;
 
@@ -44,9 +45,33 @@ public class Drivetrain extends Subsystem {
 		drive = new DifferentialDrive(leftGroup,rightGroup);
 		
 	}
+	public void tank (double leftSpeed, double rightSpeed) {
+		leftGroup.set(leftSpeed);
+		rightGroup.set(rightSpeed);
+	}
+	public void drive(double speed) {
+		rightGroup.set(speed);
+		leftGroup.set(speed);
+	}
+	public void drive(double speed, double rotation) {
+		drive.arcadeDrive(speed, rotation, false);
+	}
+	public void stop(){
+		rightGroup.stopMotor();
+		leftGroup.stopMotor();
+	}
+	public void clear() {
+		rightGroup.set(0);
+		leftGroup.set(0);
+	}
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     }
+	@Override
+	public void pidWrite(double output) {
+		offset = output;
+		drive(autospeed,offset);
+	}
 }
 
